@@ -1,0 +1,100 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  - group: BE  # AZURE_ARTIFACTS_PAT lives here; add NPM_TOKEN and (optionally) GH_PAT as secrets
+
+# Optional toggles (default = behave exactly like your old pipeline: publish only to Azure Artifacts)
+parameters:
+  - name: pushToGitHub
+    type: boolean
+    default: false
+  - name: publishToNpm
+    type: boolean
+    default: false
+  - name: packagePath
+    type: string
+    default: 'modules/login'
+
+steps:
+  # Allows pushing back to GitHub if pushToGitHub=true (we'll still use GH_PAT if provided)
+  - checkout: self
+    persistCredentials: true
+    displayName: 'Checkout (allows push when enabled)'
+
+  # 1) Use Node.js (unchanged)
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '20.x'
+    displayName: 'Use Node.js'
+
+  # 2) Authenticate with Azure Artifacts (unchanged)
+  - script: |
+      echo "Setting up npm authentication for Azure Artifacts..."
+      echo "//pkgs.dev.azure.com/CISCODEAPPS/Templates/_packaging/testfeed/npm/registry/:_authToken=$(AZURE_ARTIFACTS_PAT)" > ~/.npmrc
+      npm set registry "https://pkgs.dev.azure.com/CISCODEAPPS/Templates/_packaging/testfeed/npm/registry/"
+    displayName: 'Authenticate with Azure Artifacts'
+
+  # 3) Bump + publish to Azure Artifacts (mandatory)
+  - script: |
+      set -e
+      echo "Bumping package version before publishing login..."
+      cd ${{ parameters.packagePath }}
+      npm version patch --no-git-tag-version
+
+      # capture for optional steps
+      NEW_VERSION=$(node -p "require('./package.json').version")
+      PKG_NAME=$(node -p "require('./package.json').name")
+      echo "Decided version: ${NEW_VERSION} for ${PKG_NAME}"
+      echo "##vso[task.setvariable variable=NEW_VERSION]$NEW_VERSION"
+      echo "##vso[task.setvariable variable=PKG_NAME]$PKG_NAME"
+
+      # sanity: see what will be published
+      npm pack --dry-run
+
+      # publish to Azure Artifacts (mandatory)
+      npm publish --registry=https://pkgs.dev.azure.com/CISCODEAPPS/Templates/_packaging/testfeed/npm/registry/
+    displayName: 'Publish authentication module (Azure Artifacts - mandatory)'
+
+  # OPTIONAL: push the version bump back to GitHub
+  - ${{ if eq(parameters.pushToGitHub, true) }}:
+    - script: |
+        set -e
+        cd ${{ parameters.packagePath }}
+
+        # bot identity for the commit
+        git config user.name "azure-pipelines[bot]"
+        git config user.email "azure-pipelines-bot@example.local"
+
+        # If a GitHub PAT is provided, use it to ensure push works (esp. with GitHub App connections)
+        if [ -n "$(GH_PAT)" ]; then
+          echo "Using GH_PAT to authenticate push..."
+          git remote set-url origin "https://x-access-token:$(GH_PAT)@github.com/CISCODE-MA/auth_package"
+        fi
+
+        git add package.json package-lock.json || true
+        git commit -m "chore(login): bump $(PKG_NAME) to v$(NEW_VERSION) [skip ci]" || echo "No changes to commit"
+        git push origin HEAD:$(Build.SourceBranchName)
+      displayName: 'Push version bump to GitHub (optional)'
+
+  # OPTIONAL: publish same version to npm public (with pre-check)
+  - ${{ if eq(parameters.publishToNpm, true) }}:
+    - script: |
+        set -e
+        echo "Switching npm auth to npm public..."
+        rm -f ~/.npmrc || true
+        echo "//registry.npmjs.org/:_authToken=$(NPM_TOKEN)" > ~/.npmrc
+        npm set registry "https://registry.npmjs.org/"
+
+        cd ${{ parameters.packagePath }}
+
+        # Skip if the exact version already exists on npm
+        if npm view "$(PKG_NAME)@$(NEW_VERSION)" version >/dev/null 2>&1; then
+          echo "$(PKG_NAME)@$(NEW_VERSION) already exists on npm; skipping publish."
+        else
+          npm publish --access public
+        fi
+      displayName: 'Publish to npm public (optional)'

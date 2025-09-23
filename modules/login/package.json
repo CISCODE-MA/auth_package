@@ -1,0 +1,35 @@
+{
+    "name": "@ciscodeapps-template/auth",
+    "version": "1.0.20",
+    "description": "A login library with local login, Microsoft Entra ID authentication, password reset, and roles/permissions for multi-tenant applications.",
+    "main": "src/index.js",
+    "scripts": {
+      "start": "node src/index.js",
+      "test": "echo \"No tests defined\" && exit 0"
+    },
+    "keywords": [
+      "login",
+      "authentication",
+      "microsoft-oauth",
+      "password-reset",
+      "roles",
+      "permissions",
+      "multi-tenant"
+    ],
+    "author": "Yasser",
+    "license": "MIT",
+    "dependencies": {
+      "bcryptjs": "^2.4.3",
+      "crypto": "^1.0.1",
+      "dotenv": "^16.0.3",
+      "express": "^4.18.2",
+      "jsonwebtoken": "^9.0.0",
+      "mongoose": "^7.0.0",
+      "mongoose-paginate-v2": "^1.7.1",
+      "nodemailer": "^6.9.1",
+      "passport": "^0.6.0",
+      "passport-azure-ad-oauth2": "^0.0.4",
+      "passport-local": "^1.0.0"
+    }
+  }
+  
