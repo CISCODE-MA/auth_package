@@ -1,6 +1,6 @@
 {
     "name": "@ciscodeapps-template/auth",
-    "version": "1.0.30",
+    "version": "1.0.31",
     "description": "A login library with local login, Microsoft Entra ID authentication, password reset, and roles/permissions for multi-tenant applications.",
     "main": "src/index.js",
     "scripts": {
