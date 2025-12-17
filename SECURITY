@@ -1,0 +1,31 @@
+# Security Policy
+
+Security is taken seriously in this project.
+
+If you discover a security vulnerability, please **do not open a public issue**.
+
+---
+
+## Reporting a Vulnerability
+
+Please report security issues privately by contacting the maintainers using one of the following methods:
+
+- Email the address listed in the repository’s contact or maintainer information
+- Use private disclosure channels if available on the hosting platform
+
+When reporting, please include:
+- A description of the vulnerability
+- Steps to reproduce
+- Potential impact
+- Any suggested mitigations (if known)
+
+---
+
+## Security Best Practices
+
+- Never commit secrets or credentials
+- Use strong, rotated secrets for JWT signing
+- Run services behind HTTPS
+- Apply rate limiting and monitoring in production environments
+
+We appreciate responsible disclosure and will work to address issues promptly.
