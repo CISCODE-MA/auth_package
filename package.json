@@ -8,7 +8,8 @@
     "main": "src/index.js",
     "scripts": {
         "start": "node src/index.js",
-        "test": "echo \"No tests defined\" && exit 0"
+        "test": "echo \"No tests defined\" && exit 0",
+        "release": "semantic-release"
     },
     "keywords": [
         "login",
@@ -33,5 +34,8 @@
         "passport": "^0.6.0",
         "passport-azure-ad-oauth2": "^0.0.4",
         "passport-local": "^1.0.0"
+    },
+    "devDependencies": {
+        "semantic-release": "^25.0.2"
     }
 }
