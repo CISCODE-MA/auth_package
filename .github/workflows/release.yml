@@ -31,12 +31,13 @@ jobs:
       - name: Build
         run: npm run build:lib --if-present
 
-      - name: Configure npm auth (debug)
-        run: |
-          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-          npm whoami
+      # ✅ Auth in the npmrc that npm/semantic-release actually reads
+      - name: Configure npm auth
+        shell: bash
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> "${NPM_CONFIG_USERCONFIG}"
 
       - name: Release
         env:
