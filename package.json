@@ -8,7 +8,7 @@
     "main": "src/index.js",
     "scripts": {
         "start": "node src/index.js",
-        "test": "echo \"No tests defined\" && exit 0",
+        "test": "echo \"No tests defined\" && exit 0"
     },
     "keywords": [
         "login",
