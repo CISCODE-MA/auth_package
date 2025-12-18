@@ -1,5 +1,5 @@
 {
-    "name": "@ciscodeapps-template/auth",
+    "name": "@ciscode/authentication-kit",
     "version": "1.0.33",
     "description": "A login library with local login, Microsoft Entra ID authentication, password reset, and roles/permissions for multi-tenant applications.",
     "main": "src/index.js",
@@ -16,7 +16,7 @@
         "permissions",
         "multi-tenant"
     ],
-    "author": "Yasser",
+    "author": "Ciscode",
     "license": "MIT",
     "dependencies": {
         "bcryptjs": "^2.4.3",
